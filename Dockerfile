@@ -33,10 +33,10 @@ RUN wget https://s3.ap-northeast-2.amazonaws.com/mindlogic-dev-packages/dockeriz
 
 RUN echo export PATH="$HOME/.local/bin:$PATH"
 
-EXPOSE 6006
-
-# for internet connection
-EXPOSE 80
+EXPOSE 6001
+EXPOSE 6002
+EXPOSE 6003
+EXPOSE 6004
 
 COPY . /app
 

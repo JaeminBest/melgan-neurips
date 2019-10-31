@@ -6,3 +6,6 @@ argparse
 boto3
 requests_aws4auth
 awscli
+tensorflow-gpu==1.13.1
+tensorboardX
+tensorboard

@@ -8,8 +8,9 @@ services:
     networks: ["mindlogic-network"]
     restart: always
     ports:
-      - "6006:6006"
-      - "80:80"
+      - "6003:6003"
+    environment:
+      - CUDA_VISIBLE_DEVICES=2
     env_file:
       - "./.env"
     volumes:
