@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  mindlogic-melgan-nips:
+    build:
+      context: .
+    image: mindlogic-melgan-nips
+    networks: ["mindlogic-network"]
+    restart: always
+    ports:
+      - "6006:6006"
+      - "80:80"
+    env_file:
+      - "./.env"
+    volumes:
+      - "./:/app"
+
+networks: { mindlogic-network: {} }

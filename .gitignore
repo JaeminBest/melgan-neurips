@@ -1,0 +1,8 @@
+*.pyc
+*.pyo
+.vscode
+.env
+wavs
+final_train.txt
+loads
+saves
