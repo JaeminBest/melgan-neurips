@@ -1,19 +1,103 @@
 version: "3"
 
 services:
-  mindlogic-melgan-nips:
+  # exp 1 : LJ + SR 22050
+  mindlogic-melgan-exp1:
     build:
       context: .
-    image: mindlogic-melgan-nips
+    image: mindlogic-melgan-yes
+    networks: ["mindlogic-network"]
+    restart: always
+    ports:
+      - "6001:6001"
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - SAVE_PATH=/app/log/exp1
+      - SR=22050
+      - HOP_LENGTH=256
+      - WIN_LENGTH=1024
+      - N_FFT=1024
+      - EXPORT=6001
+    env_file:
+      - "./.env"
+    volumes:
+      - "./:/app"
+      - "/home/mindlogic-workstation-3/vocoder_data/LJSpeech-1.1/wavs:/data"
+      - "./asset1:/app/data"
+
+  # exp2 : custom + SR 22050
+  mindlogic-melgan-exp2:
+    build:
+      context: .
+    image: mindlogic-melgan-yes
+    networks: ["mindlogic-network"]
+    restart: always
+    ports:
+      - "6002:6002"
+    environment:
+      - CUDA_VISIBLE_DEVICES=1
+      - CUSTOM=1
+      - SAVE_PATH=/app/log/exp2
+      - SR=22050
+      - HOP_LENGTH=256
+      - WIN_LENGTH=1024
+      - N_FFT=1024
+      - EXPORT=6002
+    env_file:
+      - "./.env"
+    volumes:
+      - "./:/app"
+      - "/home/mindlogic-workstation-3/vocoder_data/custom:/data"
+      - "./asset2:/app/data"
+
+  # exp3 : custom + 24K SR
+  mindlogic-melgan-exp3:
+    build:
+      context: .
+    image: mindlogic-melgan-yes
     networks: ["mindlogic-network"]
     restart: always
     ports:
       - "6003:6003"
     environment:
       - CUDA_VISIBLE_DEVICES=2
+      - CUSTOM=1
+      - SAVE_PATH=/app/log/exp3
+      - SR=24000
+      - HOP_LENGTH=256
+      - WIN_LENGTH=1024
+      - N_FFT=1024
+      - EXPORT=6003
     env_file:
       - "./.env"
     volumes:
       - "./:/app"
+      - "/home/mindlogic-workstation-3/vocoder_data/custom:/data"
+      - "./asset3:/app/data"
+
+  # exp4 : custom + 24K SR + nonsymmetric
+  mindlogic-melgan-exp4:
+    build:
+      context: .
+    image: mindlogic-melgan-yes
+    networks: ["mindlogic-network"]
+    restart: always
+    ports:
+      - "6004:6004"
+    environment:
+      - CUDA_VISIBLE_DEVICES=3
+      - CUSTOM=1
+      - SAVE_PATH=/app/log/exp4
+      - SR=24000
+      - HOP_LENGTH=256
+      - WIN_LENGTH=1024
+      - N_FFT=1024
+      - EXPORT=6004
+    env_file:
+      - "./.env"
+    volumes:
+      - "./:/app"
+      - "/home/mindlogic-workstation-3/vocoder_data/custom:/data"
+      - "./asset4:/app/data"
 
 networks: { mindlogic-network: {} }

@@ -17,6 +17,14 @@ RUN apt-get install -y build-essential \
   zlib1g-dev libssl-dev \
   aptitude libsndfile-dev 
 
+## ffmpeg
+RUN wget https://www.ffmpeg.org/releases/ffmpeg-4.0.2.tar.gz
+RUN tar -xzf ffmpeg-4.0.2.tar.gz; rm -r ffmpeg-4.0.2.tar.gz
+# FIXME
+RUN cd ./ffmpeg-4.0.2; ./configure --enable-libmp3lame --enable-decoder=mjpeg,png --enable-encoder=png --enable-openssl
+RUN cd ./ffmpeg-4.0.2; make
+RUN  cd ./ffmpeg-4.0.2; make install
+
 
 ADD requirements.txt /app/
 
@@ -40,4 +48,8 @@ EXPOSE 6004
 
 COPY . /app
 
-CMD ["sleep", "infinity"]
+#CMD ["sleep", "infinity"]
+
+ENTRYPOINT ["bash", "./entrypoint.sh"]
+
+CMD ["start"]

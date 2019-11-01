@@ -19,13 +19,19 @@ import time
 import argparse
 from pathlib import Path
 
-
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--save_path", required=True)
     parser.add_argument("--load_path", default=None)
-
+    
+    # mel generation option
+    parser.add_argument("--sr",type=int, default=22050)
     parser.add_argument("--n_mel_channels", type=int, default=80)
+    parser.add_argument("--hop-length", type=int, default=256)
+    parser.add_argument("--win-length", type=int, default=1024)
+    parser.add_argument("--n-fft", type=int, default=1024)
+    parser.add_argument("--mel-fmax", type=int, default=None)
+    
     parser.add_argument("--ngf", type=int, default=32)
     parser.add_argument("--n_residual_layers", type=int, default=3)
 
@@ -36,7 +42,7 @@ def parse_args():
     parser.add_argument("--lambda_feat", type=float, default=10)
     parser.add_argument("--cond_disc", action="store_true")
 
-    parser.add_argument("--data_path", default=None, type=Path)
+    parser.add_argument("--data_path", default='/app/data', type=Path)
     parser.add_argument("--batch_size", type=int, default=16)
     parser.add_argument("--seq_len", type=int, default=8192)
 
@@ -69,7 +75,7 @@ def main():
     netD = Discriminator(
         args.num_D, args.ndf, args.n_layers_D, args.downsamp_factor
     ).cuda()
-    fft = Audio2Mel(n_mel_channels=args.n_mel_channels).cuda()
+    fft = Audio2Mel(n_fft=args.n_fft,n_mel_channels=args.n_mel_channels, sampling_rate=args.sr,hop_length=args.hop_length, win_length=args.win_length,mel_fmax=args.mel_fmax).cuda()
 
     print(netG)
     print(netD)
@@ -90,12 +96,12 @@ def main():
     # Create data loaders #
     #######################
     train_set = AudioDataset(
-        Path(args.data_path) / "train_files.txt", args.seq_len, sampling_rate=22050
+        Path(args.data_path) / "final_train.txt", args.seq_len, sampling_rate=args.sr
     )
     test_set = AudioDataset(
-        Path(args.data_path) / "test_files.txt",
-        22050 * 4,
-        sampling_rate=22050,
+        Path(args.data_path) / "final_val.txt",
+        args.sr * 4,
+        sampling_rate=args.sr,
         augment=False,
     )
 
@@ -115,8 +121,8 @@ def main():
         test_audio.append(x_t)
 
         audio = x_t.squeeze().cpu()
-        save_sample(root / ("original_%d.wav" % i), 22050, audio)
-        writer.add_audio("original/sample_%d.wav" % i, audio, 0, sample_rate=22050)
+        save_sample(root / ("original_%d.wav" % i), args.sr, audio)
+        writer.add_audio("original/sample_%d.wav" % i, audio, 0, sample_rate=args.sr)
 
         if i == args.n_test_samples - 1:
             break
@@ -194,12 +200,12 @@ def main():
                     for i, (voc, _) in enumerate(zip(test_voc, test_audio)):
                         pred_audio = netG(voc)
                         pred_audio = pred_audio.squeeze().cpu()
-                        save_sample(root / ("generated_%d.wav" % i), 22050, pred_audio)
+                        save_sample(root / ("generated_%d.wav" % i), args.sr, pred_audio)
                         writer.add_audio(
                             "generated/sample_%d.wav" % i,
                             pred_audio,
                             epoch,
-                            sample_rate=22050,
+                            sample_rate=args.sr,
                         )
 
                 torch.save(netG.state_dict(), root / "netG.pt")

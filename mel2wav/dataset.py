@@ -8,6 +8,7 @@ from librosa.util import normalize
 from pathlib import Path
 import numpy as np
 import random
+import sys
 
 
 def files_to_list(filename):
@@ -61,8 +62,12 @@ class AudioDataset(torch.utils.data.Dataset):
         Loads wavdata into torch array
         """
         data, sampling_rate = load(full_path, sr=self.sampling_rate)
-        data = 0.95 * normalize(data)
-
+        #print(data.shape,flush=True)
+        try:
+            data = 0.95 * normalize(data)
+        except:
+            print(full_path,flush=True)
+            sys.exit(-1)
         if self.augment:
             amplitude = np.random.uniform(low=0.3, high=1.0)
             data = data * amplitude
